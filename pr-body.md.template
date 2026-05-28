@@ -27,4 +27,4 @@ Workflow run: <%- workflowRunUrl %>
 
 ---
 
-*It was created automatically via workflow dispatch from `<%- automationRepo %>` by `@shravangoswami-bot`, a bot account maintained by `@shravanngoswamii`.*
+*This PR was created automatically via workflow dispatch from <%- automationRepo %> by @shravangoswami-bot, a bot account maintained by @shravanngoswamii.*
