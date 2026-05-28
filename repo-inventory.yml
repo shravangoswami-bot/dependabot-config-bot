@@ -10,9 +10,6 @@ defaults:
     julia:
       enabled: true
       interval: weekly
-      day: saturday
-      time: "02:00"
-      timezone: "Etc/UTC"
       group_all: true
     npm:
       enabled: false
