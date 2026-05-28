@@ -302,12 +302,11 @@ process_repo() {
     git -C "$repo_dir" commit -m "$title" -m "Co-authored-by: ${COMMIT_CO_AUTHOR}"
     git -c http.https://github.com/.extraheader= -c credential.helper= -C "$repo_dir" push --force fork "$BRANCH"
 
-    existing_pr="$(gh pr list --repo "$upstream_repo" --search "head:${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"
+    existing_pr="$(gh search prs --head "$BRANCH" --author "$BOT_OWNER" --state open --json url,repository -q '.[] | select(.repository.name == "'"$short_repo"'") | .url')"
     if [[ -n "$existing_pr" ]]; then
         echo "PR already exists: ${existing_pr}"
         echo "Updating PR title and body..."
         gh pr edit "$existing_pr" \
-            --repo "$upstream_repo" \
             --title "$title" \
             --body-file "$body_file"
     else
@@ -322,12 +321,14 @@ process_repo() {
 
 cleanup_repo() {
     local repo="$1"
+    local short_repo
     local upstream_repo
     local fork_repo
     local fork_url
-    local pr_numbers
-    local pr_number
+    local pr_urls
+    local pr_url
 
+    short_repo="$(repo_short_name "$repo")"
     upstream_repo="$(repo_full_name "$repo")"
     fork_repo="$(fork_full_name "$repo")"
     fork_url="https://x-access-token:${GH_TOKEN}@github.com/${fork_repo}.git"
@@ -335,20 +336,20 @@ cleanup_repo() {
     echo
     echo "==> Cleaning up ${upstream_repo}"
 
-    mapfile -t pr_numbers < <(
-        gh pr list \
-            --repo "$upstream_repo" \
-            --search "head:${BOT_OWNER}:${BRANCH}" \
+    mapfile -t pr_urls < <(
+        gh search prs \
+            --head "$BRANCH" \
+            --author "$BOT_OWNER" \
             --state open \
-            --json number \
-            -q '.[].number'
+            --json url,repository \
+            -q '.[] | select(.repository.name == "'"$short_repo"'") | .url'
     )
 
-    for pr_number in "${pr_numbers[@]}"; do
+    for pr_url in "${pr_urls[@]}"; do
         if bool_is_true "$DRY_RUN"; then
-            echo "DRY RUN: would close PR #${pr_number} in ${upstream_repo}."
+            echo "DRY RUN: would close PR ${pr_url}."
         else
-            gh pr close "$pr_number" --repo "$upstream_repo" --comment "Closing this automated Dependabot config PR via workflow dispatch."
+            gh pr close "$pr_url" --comment "Closing this automated Dependabot config PR via workflow dispatch."
         fi
     done
 
