@@ -12,7 +12,7 @@ on:
           - "update"
           - "cleanup"
       target:
-        description: "Target repo: inventory or a single repo name"
+        description: "Target repo: inventory or Owner/RepoName"
         required: true
         default: "inventory"
       remove_compathelper:

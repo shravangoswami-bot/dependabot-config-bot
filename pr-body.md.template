@@ -1,0 +1,28 @@
+## Summary
+
+This PR updates dependency update automation for this repository.
+
+It was created automatically via workflow dispatch from `<%- automationRepo %>` by `@shravangoswami-bot`, a bot account maintained by `@shravanngoswamii`.
+
+@shravanngoswamii please review this PR.
+<% if (workflowRunUrl) { -%>
+
+Workflow run: <%- workflowRunUrl %>
+<% } -%>
+## Detected State
+
+- CompatHelper workflow: <%- compathelperBefore %>
+- Dependabot config: <%- dependabotBefore %>
+<% if (existingDependabotPath) { -%>
+- Existing Dependabot path: `<%- existingDependabotPath %>`
+<% } -%>
+- Julia package directories: <%- juliaDirectories %>
+<% if (npmEnabled) { -%>
+- npm package directories: <%- npmDirectories %>
+<% } -%>
+<% if (cargoEnabled) { -%>
+- Cargo package directories: <%- cargoDirectories %>
+<% } -%>
+## Changes Made
+
+<%- changesMade %>

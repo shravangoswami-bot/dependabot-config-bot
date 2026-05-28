@@ -11,9 +11,12 @@ UPDATE_DEPENDABOT="${UPDATE_DEPENDABOT:-true}"
 BRANCH="${BRANCH:-dependabot-config}"
 DRY_RUN="${DRY_RUN:-true}"
 INVENTORY_PATH="${INVENTORY_PATH:-repo-inventory.yml}"
+COMMIT_CO_AUTHOR="${COMMIT_CO_AUTHOR:-shravanngoswamii <shravanngoswamii@users.noreply.github.com>}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 GENERATOR="${SCRIPT_DIR}/generate-dependabot.mjs"
+PR_BODY_RENDERER="${SCRIPT_DIR}/render-pr-body.mjs"
+PR_BODY_TEMPLATE="${PR_BODY_TEMPLATE:-${REPO_DIR}/pr-body.md.template}"
 
 if [[ -z "${GH_TOKEN:-}" ]]; then
     echo "error: GH_TOKEN is required" >&2
@@ -26,16 +29,12 @@ bool_is_true() {
 
 repo_short_name() {
     local repo="$1"
-    echo "${repo#${ORG}/}"
+    echo "${repo##*/}"
 }
 
 repo_full_name() {
     local repo="$1"
-    if [[ "$repo" == */* ]]; then
-        echo "$repo"
-    else
-        echo "${ORG}/${repo}"
-    fi
+    setting_value "$repo" repo
 }
 
 fork_full_name() {
@@ -69,6 +68,16 @@ setting_value() {
     local key="$2"
     node "$GENERATOR" --inventory "$INVENTORY_PATH" --describe "$repo" \
         | awk -F= -v key="$key" '$1 == key { print $2 }'
+}
+
+append_change() {
+    local changes_file="$1"
+    local condition="$2"
+    local message="$3"
+
+    if bool_is_true "$condition"; then
+        echo "- ${message}" >> "$changes_file"
+    fi
 }
 
 ensure_fork() {
@@ -142,47 +151,29 @@ write_pr_body() {
     local cargo_directories="${11}"
     local cargo_enabled="${12}"
     local cargo_group_all="${13}"
+    local changes_file
+    local changes_made
 
-    {
-        echo "## Summary"
-        echo
-        echo "This PR updates this repository's dependency-update automation for the TuringLang Dependabot rollout."
-        echo
-        echo "This PR was opened automatically via workflow dispatch by the Dependabot config bot workflow."
-        if [[ -n "$(workflow_run_url)" ]]; then
-            echo "Workflow run: $(workflow_run_url)"
-        fi
-        echo
-        echo "## Detected state before this PR"
-        echo
-        echo "- CompatHelper workflow: ${COMPATHELPER_BEFORE}"
-        echo "- Dependabot config: ${DEPENDABOT_BEFORE}"
-        if [[ -n "$EXISTING_DEPENDABOT_PATH" ]]; then
-            echo "- Existing Dependabot path: \`${EXISTING_DEPENDABOT_PATH}\`"
-        fi
-        echo "- Julia package directories: ${julia_directories}"
-        if bool_is_true "$npm_enabled"; then
-            echo "- npm package directories: ${npm_directories}"
-        fi
-        if bool_is_true "$cargo_enabled"; then
-            echo "- Cargo package directories: ${cargo_directories}"
-        fi
-        echo
-        echo "## Changes made"
-        echo
-        if bool_is_true "$compat_removed"; then
-            echo "- Removed CompatHelper workflow."
-        fi
-        if bool_is_true "$dependabot_added"; then
-            echo "- Added Dependabot config."
-        fi
-        if bool_is_true "$dependabot_updated"; then
-            echo "- Updated Dependabot config."
-        fi
-        if bool_is_true "$normalized_yaml"; then
-            echo "- Normalized \`.github/dependabot.yaml\` to \`.github/dependabot.yml\`."
-        fi
-    } > "$body_file"
+    changes_file="${body_file}.changes"
+    : > "$changes_file"
+    append_change "$changes_file" "$compat_removed" "Removed CompatHelper workflow."
+    append_change "$changes_file" "$dependabot_added" "Added Dependabot config."
+    append_change "$changes_file" "$dependabot_updated" "Updated Dependabot config."
+    append_change "$changes_file" "$normalized_yaml" "Normalized \`.github/dependabot.yaml\` to \`.github/dependabot.yml\`."
+    changes_made="$(cat "$changes_file")"
+
+    AUTOMATION_REPO="${GITHUB_REPOSITORY:-shravangoswami-bot/dependabot-config-bot}" \
+        WORKFLOW_RUN_URL="$(workflow_run_url)" \
+        COMPATHELPER_BEFORE="$COMPATHELPER_BEFORE" \
+        DEPENDABOT_BEFORE="$DEPENDABOT_BEFORE" \
+        EXISTING_DEPENDABOT_PATH="$EXISTING_DEPENDABOT_PATH" \
+        JULIA_DIRECTORIES="$julia_directories" \
+        NPM_DIRECTORIES="$npm_directories" \
+        NPM_ENABLED="$npm_enabled" \
+        CARGO_DIRECTORIES="$cargo_directories" \
+        CARGO_ENABLED="$cargo_enabled" \
+        CHANGES_MADE="$changes_made" \
+        node "$PR_BODY_RENDERER" "$PR_BODY_TEMPLATE" "$body_file"
 }
 
 dry_run_repo() {
@@ -309,7 +300,7 @@ process_repo() {
         "$(setting_value "$short_repo" cargo_group_all)"
 
     git -C "$repo_dir" add .github
-    git -C "$repo_dir" commit -m "$title"
+    git -C "$repo_dir" commit -m "$title" -m "Co-authored-by: ${COMMIT_CO_AUTHOR}"
     git -C "$repo_dir" push --force-with-lease fork "$BRANCH"
 
     existing_pr="$(gh pr list --repo "$upstream_repo" --head "${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"

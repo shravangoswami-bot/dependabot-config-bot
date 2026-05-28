@@ -50,8 +50,8 @@ function parseArgs(args) {
   return options;
 }
 
-function normalizeRepoName(repo) {
-  return repo.includes("/") ? repo.split("/", 2)[1] : repo;
+function repoBasename(repo) {
+  return repo.includes("/") ? repo.split("/").at(-1) : repo;
 }
 
 function loadInventory(inventoryPath) {
@@ -79,15 +79,20 @@ function deepMerge(base, override) {
 }
 
 function findRepoConfig(inventory, repoName) {
-  const shortName = normalizeRepoName(repoName);
+  const requestedName = String(repoName);
   const defaults = inventory.defaults ?? {};
   const repositories = inventory.repositories ?? [];
   const repoConfig = repositories.find((entry) => {
-    return normalizeRepoName(String(entry.name ?? "")) === shortName;
+    const entryName = String(entry.name ?? "");
+    return entryName === requestedName || repoBasename(entryName) === requestedName;
   }) ?? {};
 
+  if (!repoConfig.name && !requestedName.includes("/")) {
+    throw new Error(`Use OWNER/REPO or add ${requestedName} to the inventory`);
+  }
+
   const merged = deepMerge(defaults, repoConfig);
-  merged.name ??= shortName;
+  merged.name ??= requestedName;
   merged.julia_directories ??= ["/"];
   merged.npm_directories ??= [];
   merged.cargo_directories ??= [];
@@ -145,7 +150,7 @@ function buildUpdates(repoConfig) {
 
 function listRepositories(inventory) {
   for (const entry of inventory.repositories ?? []) {
-    if (entry.name) console.log(normalizeRepoName(String(entry.name)));
+    if (entry.name) console.log(String(entry.name));
   }
 }
 
@@ -157,7 +162,8 @@ function describeRepo(inventory, repoName) {
   const npm = dependabot.npm ?? {};
   const cargo = dependabot.cargo ?? {};
 
-  console.log(`repo=${normalizeRepoName(repoName)}`);
+  console.log(`repo=${repoConfig.name}`);
+  console.log(`repo_basename=${repoBasename(repoConfig.name)}`);
   console.log(`julia_directories=${repoConfig.julia_directories.join(",")}`);
   console.log(`npm_directories=${repoConfig.npm_directories.join(",")}`);
   console.log(`cargo_directories=${repoConfig.cargo_directories.join(",")}`);

@@ -9,7 +9,7 @@ Run `Dependabot config` manually with:
 - `operation=update` to open or update PRs
 - `operation=cleanup` to close matching PRs and delete bot fork branches
 - `target=inventory` to use `repo-inventory.yml`
-- `target=RepoName.jl` to run one repository
+- `target=Owner/RepoName` to run one repository
 
 ## Inventory
 
