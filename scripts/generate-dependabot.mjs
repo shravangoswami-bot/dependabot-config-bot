@@ -82,17 +82,28 @@ function findRepoConfig(inventory, repoName) {
   const requestedName = String(repoName);
   const defaults = inventory.defaults ?? {};
   const repositories = inventory.repositories ?? [];
-  const repoConfig = repositories.find((entry) => {
+  let repoConfig = repositories.find((entry) => {
     const entryName = String(entry.name ?? "");
-    return entryName === requestedName || repoBasename(entryName) === requestedName;
-  }) ?? {};
+    return entryName === requestedName;
+  });
 
-  if (!repoConfig.name && !requestedName.includes("/")) {
+  if (!repoConfig) {
+    repoConfig = repositories.find((entry) => {
+      const entryName = String(entry.name ?? "");
+      return repoBasename(entryName) === repoBasename(requestedName);
+    });
+  }
+
+  if (!repoConfig && !requestedName.includes("/")) {
     throw new Error(`Use OWNER/REPO or add ${requestedName} to the inventory`);
   }
 
-  const merged = deepMerge(defaults, repoConfig);
-  merged.name ??= requestedName;
+  const merged = deepMerge(defaults, repoConfig ?? {});
+  if (requestedName.includes("/")) {
+    merged.name = requestedName;
+  } else {
+    merged.name ??= requestedName;
+  }
   merged.julia_directories ??= ["/"];
   merged.npm_directories ??= [];
   merged.cargo_directories ??= [];

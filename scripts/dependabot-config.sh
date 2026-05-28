@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-ORG="${ORG:-TuringLang}"
 BOT_OWNER="${BOT_OWNER:-shravangoswami-bot}"
 OPERATION="${OPERATION:-update}"
 TARGET="${TARGET:-inventory}"
@@ -58,7 +57,7 @@ target_repos() {
             inventory_repos
             ;;
         *)
-            repo_short_name "$TARGET"
+            echo "$TARGET"
             ;;
     esac
 }
@@ -95,7 +94,7 @@ ensure_fork() {
     fi
 
     echo "Creating fork ${fork_repo} from ${upstream_repo}"
-    gh repo fork "$upstream_repo" --clone=false
+    gh repo fork "$upstream_repo" --clone=false --default-branch-only
 }
 
 detect_file_state() {

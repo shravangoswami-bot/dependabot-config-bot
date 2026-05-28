@@ -1,10 +1,8 @@
+**Please ignore until reviewed by @shravanngoswamii.**
+
 ## Summary
 
 This PR updates dependency update automation for this repository.
-
-It was created automatically via workflow dispatch from `<%- automationRepo %>` by `@shravangoswami-bot`, a bot account maintained by `@shravanngoswamii`.
-
-@shravanngoswamii please review this PR.
 <% if (workflowRunUrl) { -%>
 
 Workflow run: <%- workflowRunUrl %>
@@ -26,3 +24,7 @@ Workflow run: <%- workflowRunUrl %>
 ## Changes Made
 
 <%- changesMade %>
+
+---
+
+*It was created automatically via workflow dispatch from `<%- automationRepo %>` by `@shravangoswami-bot`, a bot account maintained by `@shravanngoswamii`.*
