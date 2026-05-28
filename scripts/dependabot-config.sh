@@ -302,7 +302,7 @@ process_repo() {
     git -C "$repo_dir" commit -m "$title" -m "Co-authored-by: ${COMMIT_CO_AUTHOR}"
     git -c http.https://github.com/.extraheader= -c credential.helper= -C "$repo_dir" push --force fork "$BRANCH"
 
-    existing_pr="$(gh pr list --repo "$upstream_repo" --head "${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"
+    existing_pr="$(gh pr list --repo "$upstream_repo" --search "head:${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"
     if [[ -n "$existing_pr" ]]; then
         echo "PR already exists: ${existing_pr}"
         echo "Updating PR title and body..."
@@ -338,7 +338,7 @@ cleanup_repo() {
     mapfile -t pr_numbers < <(
         gh pr list \
             --repo "$upstream_repo" \
-            --head "${BOT_OWNER}:${BRANCH}" \
+            --search "head:${BOT_OWNER}:${BRANCH}" \
             --state open \
             --json number \
             -q '.[].number'
