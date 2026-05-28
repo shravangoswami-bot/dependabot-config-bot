@@ -24,11 +24,11 @@ defaults:
       group_all: true
 
 repositories:
-  - name: TuringLang/AdvancedMH.jl
-    julia_directories:
-      - "/"
+  # - name: TuringLang/AdvancedMH.jl
+  #   julia_directories:
+  #     - "/"
 
-  - name: TuringLang/JuliaBUGS.jl
+  - name: shravanngoswamii/JuliaBUGS.jl
     julia_directories:
       - "/JuliaBUGS"
     npm_directories:
