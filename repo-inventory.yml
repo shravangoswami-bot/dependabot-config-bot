@@ -1,5 +1,3 @@
-# Editable inventory for the Dependabot configuration rollout.
-# Start small, verify the generated PRs, then add more TuringLang repositories.
 defaults:
   remove_compathelper: true
   update_dependabot: true
