@@ -21,11 +21,11 @@ defaults:
       group_all: true
 
 repositories:
-  # - name: TuringLang/AdvancedMH.jl
-  #   julia_directories:
-  #     - "/"
+  - name: TuringLang/AdvancedMH.jl
+    julia_directories:
+      - "/"
 
-  - name: shravanngoswamii/JuliaBUGS.jl
+  - name: TuringLang/JuliaBUGS.jl
     julia_directories:
       - "/JuliaBUGS"
     npm_directories:
@@ -33,7 +33,3 @@ repositories:
     dependabot:
       npm:
         enabled: true
-  
-  - name: shravanngoswamii/DynamicPPL.jl
-    julia_directories:
-      - "/"
