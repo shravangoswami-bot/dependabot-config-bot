@@ -36,3 +36,7 @@ repositories:
     dependabot:
       npm:
         enabled: true
+  
+  - name: shravanngoswamii/DynamicPPL.jl
+    julia_directories:
+      - "/"
