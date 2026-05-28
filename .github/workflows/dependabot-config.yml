@@ -1,0 +1,71 @@
+name: Dependabot config
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Operation to run"
+        required: true
+        type: choice
+        default: "update"
+        options:
+          - "update"
+          - "cleanup"
+      target:
+        description: "Target repo: inventory or a single repo name"
+        required: true
+        default: "inventory"
+      remove_compathelper:
+        description: "Remove CompatHelper workflow if present"
+        required: true
+        type: boolean
+        default: true
+      update_dependabot:
+        description: "Create or update Dependabot config"
+        required: true
+        type: boolean
+        default: true
+      branch_name:
+        description: "Branch name to create/update in bot forks"
+        required: true
+        default: "dependabot-config"
+      dry_run:
+        description: "Print planned changes only"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  dependabot-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout automation repository
+        uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install generator dependencies
+        run: npm ci
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "shravangoswami-bot"
+          git config --global user.email "shravangoswami-bot@users.noreply.github.com"
+
+      - name: Verify GitHub CLI authentication
+        run: gh auth status
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+
+      - name: Run Dependabot configuration
+        run: scripts/dependabot-config.sh
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          OPERATION: ${{ inputs.operation }}
+          TARGET: ${{ inputs.target }}
+          REMOVE_COMPATHELPER: ${{ inputs.remove_compathelper }}
+          UPDATE_DEPENDABOT: ${{ inputs.update_dependabot }}
+          BRANCH: ${{ inputs.branch_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
