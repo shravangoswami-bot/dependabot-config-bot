@@ -300,11 +300,16 @@ process_repo() {
 
     git -C "$repo_dir" add .github
     git -C "$repo_dir" commit -m "$title" -m "Co-authored-by: ${COMMIT_CO_AUTHOR}"
-    git -c http.https://github.com/.extraheader= -c credential.helper= -C "$repo_dir" push --force-with-lease fork "$BRANCH"
+    git -c http.https://github.com/.extraheader= -c credential.helper= -C "$repo_dir" push --force fork "$BRANCH"
 
     existing_pr="$(gh pr list --repo "$upstream_repo" --head "${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"
     if [[ -n "$existing_pr" ]]; then
         echo "PR already exists: ${existing_pr}"
+        echo "Updating PR title and body..."
+        gh pr edit "$existing_pr" \
+            --repo "$upstream_repo" \
+            --title "$title" \
+            --body-file "$body_file"
     else
         gh pr create \
             --repo "$upstream_repo" \
