@@ -300,7 +300,7 @@ process_repo() {
 
     git -C "$repo_dir" add .github
     git -C "$repo_dir" commit -m "$title" -m "Co-authored-by: ${COMMIT_CO_AUTHOR}"
-    git -c credential.helper= -C "$repo_dir" push --force-with-lease fork "$BRANCH"
+    git -c http.https://github.com/.extraheader= -c credential.helper= -C "$repo_dir" push --force-with-lease fork "$BRANCH"
 
     existing_pr="$(gh pr list --repo "$upstream_repo" --head "${BOT_OWNER}:${BRANCH}" --state open --json url -q '.[0].url')"
     if [[ -n "$existing_pr" ]]; then
@@ -347,11 +347,11 @@ cleanup_repo() {
         fi
     done
 
-    if git -c credential.helper= ls-remote --exit-code --heads "$fork_url" "$BRANCH" >/dev/null 2>&1; then
+    if git -c http.https://github.com/.extraheader= -c credential.helper= ls-remote --exit-code --heads "$fork_url" "$BRANCH" >/dev/null 2>&1; then
         if bool_is_true "$DRY_RUN"; then
             echo "DRY RUN: would delete branch ${BRANCH} in ${fork_repo}."
         else
-            git -c credential.helper= push "$fork_url" --delete "$BRANCH"
+            git -c http.https://github.com/.extraheader= -c credential.helper= push "$fork_url" --delete "$BRANCH"
         fi
     else
         echo "Branch ${BRANCH} does not exist in ${fork_repo}."
