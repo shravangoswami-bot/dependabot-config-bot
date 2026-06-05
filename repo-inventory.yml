@@ -5,6 +5,7 @@ defaults:
     github_actions:
       enabled: true
       interval: weekly
+      group_all: true
     julia:
       enabled: true
       interval: weekly
@@ -26,6 +27,10 @@ repositories:
   - name: TuringLang/JuliaBUGS.jl
     julia_directories:
       - "/JuliaBUGS"
+      - "/JuliaBUGS/docs"
+      - "/JuliaBUGS/test"
+      - "/JuliaBUGS/benchmark"
+      - "/JuliaBUGS/examples"
     npm_directories:
       - "/DoodleBUGS"
     dependabot:

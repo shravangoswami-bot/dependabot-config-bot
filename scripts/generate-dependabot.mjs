@@ -179,6 +179,7 @@ function describeRepo(inventory, repoName) {
   console.log(`npm_directories=${repoConfig.npm_directories.join(",")}`);
   console.log(`cargo_directories=${repoConfig.cargo_directories.join(",")}`);
   console.log(`github_actions_enabled=${githubActions.enabled === true}`);
+  console.log(`github_actions_group_all=${githubActions.group_all === true}`);
   console.log(`julia_enabled=${julia.enabled === true}`);
   console.log(`julia_group_all=${julia.group_all === true}`);
   console.log(`npm_enabled=${npm.enabled === true}`);
