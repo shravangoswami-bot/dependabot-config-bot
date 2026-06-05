@@ -1,3 +1,4 @@
+# Editable inventory for the Dependabot configuration rollout.
 defaults:
   remove_compathelper: true
   update_dependabot: true
@@ -20,9 +21,74 @@ defaults:
       group_all: true
 
 repositories:
+  - name: TuringLang/AbstractMCMC.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+
+  - name: TuringLang/AbstractPPL.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
+      - "/test/ext/differentiationinterface"
+      - "/test/ext/forwarddiff"
+      - "/test/ext/mooncake"
+
+  - name: TuringLang/ADTests
+    julia_directories:
+      - "/"
+      - "/scripts"
+    npm_directories:
+      - "/web"
+    dependabot:
+      npm:
+        enabled: true
+
+  - name: TuringLang/AdvancedHMC.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
+      - "/test/CUDA"
+      - "/test/turing"
+
   - name: TuringLang/AdvancedMH.jl
     julia_directories:
       - "/"
+      - "/docs"
+
+  - name: TuringLang/AdvancedVI.jl
+    julia_directories:
+      - "/"
+      - "/bench"
+      - "/docs"
+      - "/test"
+
+  - name: TuringLang/Bijectors.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
+      - "/test/integration_tests/enzyme"
+      - "/test/integration_tests/mooncake"
+      - "/test/integration_tests/reversediff"
+
+  - name: TuringLang/DynamicPPL.jl
+    julia_directories:
+      - "/"
+      - "/benchmarks"
+      - "/docs"
+      - "/test"
+      - "/test/ext/DynamicPPLEnzymeCoreExt"
+      - "/test/ext/DynamicPPLMarginalLogDensitiesExt"
+      - "/test/ext/DynamicPPLReverseDiffExt"
+      - "/test/floattypes"
+
+  - name: TuringLang/EllipticalSliceSampling.jl
+    julia_directories:
+      - "/"
+      - "/docs"
 
   - name: TuringLang/JuliaBUGS.jl
     julia_directories:
@@ -36,3 +102,54 @@ repositories:
     dependabot:
       npm:
         enabled: true
+
+  - name: TuringLang/Libtask.jl
+    julia_directories:
+      - "/"
+      - "/benchmarks"
+      - "/docs"
+      - "/test"
+      - "/test/integration/turing"
+
+  - name: TuringLang/MCMCDiagnosticTools.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+
+  - name: TuringLang/NormalizingFlows.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/example"
+      - "/test"
+      - "/test/ext/CUDA"
+
+  - name: TuringLang/SliceSampling.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
+
+  - name: TuringLang/SSMProblems.jl
+    julia_directories:
+      - "/GeneralisedFilters"
+      - "/GeneralisedFilters/docs"
+      - "/GeneralisedFilters/examples/PGAS Example"
+      - "/GeneralisedFilters/examples/trend-inflation"
+      - "/SSMProblems"
+      - "/SSMProblems/docs"
+      - "/SSMProblems/examples/kalman-filter"
+
+  - name: TuringLang/Turing.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
+      - "/test/floattypes"
+      - "/test/integration/enzyme"
+
+  - name: TuringLang/TuringGLM.jl
+    julia_directories:
+      - "/"
+      - "/docs"
+      - "/test"
