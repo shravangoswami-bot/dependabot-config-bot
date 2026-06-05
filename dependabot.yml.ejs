@@ -23,8 +23,5 @@ updates:
       all-<%= update.groupName %>-packages:
         patterns:
           - "*"
-<% if (update.directories.length > 1) { -%>
-        group-by: dependency-name
-<% } -%>
 <% } -%>
 <% }); -%>
