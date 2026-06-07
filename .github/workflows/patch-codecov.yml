@@ -1,0 +1,50 @@
+name: Patch codecov for Dependabot
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target repo: inventory or Owner/RepoName"
+        required: true
+        default: "inventory"
+      branch_name:
+        description: "Branch name to create/update in bot forks"
+        required: true
+        default: "patch-codecov-dependabot"
+      dry_run:
+        description: "Print planned changes only"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  patch-codecov:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout automation repository
+        uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Install generator dependencies
+        run: npm ci
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "shravangoswami-bot"
+          git config --global user.email "shravangoswami-bot@users.noreply.github.com"
+
+      - name: Verify GitHub CLI authentication
+        run: gh auth status
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+
+      - name: Run codecov patch
+        run: scripts/patch-codecov.sh
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          TARGET: ${{ inputs.target }}
+          BRANCH: ${{ inputs.branch_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
